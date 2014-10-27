@@ -56,5 +56,7 @@ See above - and the truly transparent disco below (try changing the background i
 #### Roadmap
 
 • Get full browser support matrix together
+
 • Get test coverage for CLI
+
 • If browser support is significant - build Photoshop extension, allowing for export directly from photoshop having used their animation tools
