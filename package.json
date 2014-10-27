@@ -1,0 +1,10 @@
+{
+  "name": "sag",
+  "version": "0.0.1",
+  "description": "CLI to create animated SVGs from directory of frames. These work similar to GIFs, but have better colour spectrum, and on the whole lower file size when using compressed JPGs",
+  "author": "Craig Blagg <craig.blagg@wk.com>",
+  "dependencies": {
+    "commander": "2.5.0",
+    "node-dir": "0.1.6"
+  }
+}

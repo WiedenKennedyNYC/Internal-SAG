@@ -1,0 +1,234 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+var program 	= require('commander');
+var fs 			= require('fs');
+var dir 		= require('node-dir');
+
+
+
+/**
+ * Module defaults.
+ */
+var defaults 	= {
+	imagepath:'./images',
+	delay:0.3,
+	out:'./sag.svg',
+	width:1152,
+	height:648
+}
+
+
+
+/**
+ * Arguments.
+ */
+program
+  .version('0.0.1')
+  .option('-i, --imagepath [type]', 'Add a specific image path ['+defaults.imagepath+']', defaults.imagepath)
+  .option('-d, --delay [type]', 'Add a specific animation delay ['+defaults.delay+']', defaults.delay)
+  .option('-o, --out [type]', 'Add a specific file path ['+defaults.out+']', defaults.out)
+  .option('-w, --width [type]', 'Add a specific image width ['+defaults.width+']', defaults.width)
+  .option('-h, --height [type]', 'Add a specific image height ['+defaults.height+']', defaults.height)
+  .parse(process.argv);
+
+console.log('Creating new image with:');
+console.log('Image path	:: %s', program.imagepath);
+console.log('Delay		:: %s', program.delay);
+console.log('Out		:: %s', program.out);
+console.log('Width		:: %s', program.width);
+console.log('Height		:: %s', program.height);
+
+
+
+
+
+/**
+ * App.
+ */
+var sag = {
+	/*
+	 *
+	 * HANDLE CREATING THE IMAGE THROUGH HELPERS
+	 *
+	 */
+	 create:function(imagepath, delay, out, width, height){
+		sag.getImages(imagepath, function(images){
+			if(!images.length){
+				sag.notify.error('No images in ' + program.imagepath);
+			}
+			
+			var base64EncodedImages = sag.getBase64EncodedImage(images);
+			var svgContent = sag.base64ImageArrayToAnimatedSVG(base64EncodedImages, delay, width, height);
+			fs.writeFile(out, svgContent, function (err) {
+				if (err){
+			  		return sag.notify.error(err);
+			  	} 
+			  	sag.notify.log('Success. File saved to:' + out);
+			  	return process.exit();
+			});
+		})
+	 },
+	 
+	 
+	 
+	/*
+	 *
+	 * GET IMAGES IN IMAGE PATH
+	 *
+	 */
+	 getImages:function(path, callback){
+	 	dir.paths(path,{
+		 	match: /\.(jpg|jpeg|png)$/i,
+		 	exclude: /^\./	
+	 	},
+	    function(err, paths) {
+	        if (err) throw err;
+	        return callback(paths);
+	    });
+	 },
+	 
+	 
+	 
+	 
+	 
+	/*
+	 *
+	 * KEY TIMES FOR IMAGES IN IMAGE PATH - PERCENT THROUGH ANIM
+	 *
+	 */
+	 keyTimesForImages:function(images,delay,duration){
+	 	var keytimes = '';
+	 	for(var i = 0; i < images.length; i++){
+		 	keytimes += (i * delay) / duration + ';';
+	 	}
+	 	keytimes += 1;
+		return keytimes;
+	 },
+	 
+	 
+	 
+	 
+	 valuesForImagesAndImage:function(id,frameCount){
+	 	var values = '';
+		for(var i = 0; i < frameCount; i++){
+			if(i == id){
+				values += 'inline;';
+			}else{
+				values += 'none;';
+			}
+		} 
+		values += 'none';
+		return values;
+	 },
+	 
+	 
+	 
+	/*
+	 *
+	 * SVG IMAGE TAG FOR SVG
+	 *
+	 */ 
+	 svgImageTag:function(keytimes,duration,id,base64Data,frameCount,width,height){
+	 	var newLine = '\n';
+	 	//base64Data = '';
+		 var imagetag  = '<image width="'+width+'" height="'+height+'" xlink:href="'+base64Data+'">'+newLine;
+			 imagetag += '<animate '+newLine;
+		     imagetag += 	'id="frame'+(id+1)+'" '+newLine;
+		     imagetag += 	'attributeName="display" '+newLine;
+		     imagetag += 	'values="'+sag.valuesForImagesAndImage(id,frameCount)+'" '+newLine;
+		     imagetag += 	'keyTimes="'+keytimes+'" '+newLine;
+		     imagetag += 	'dur="'+duration+'s" '+newLine;
+		     imagetag += 	'begin="0s" '+newLine;
+		     imagetag += 	'repeatCount="indefinite" />'+newLine;
+			 imagetag += '</image>';
+		return imagetag;
+	 },
+	 
+	 
+	 
+	 
+	 
+	/*
+	 *
+	 * SVG IMAGE TAG FOR SVG
+	 *
+	 */ 
+	 getAnimatedSVGDuration:function(numImages,delay){
+	 	//return 1;
+		return (numImages * delay).toFixed(1);
+	 },
+	 
+	 
+	 
+	 
+	/*
+	 *
+	 * IMAGE ARRAY TO ANIMATED SVG
+	 *
+	 */
+	 base64ImageArrayToAnimatedSVG:function(base64EncodedImages,delay,width,height){
+		var duration = sag.getAnimatedSVGDuration(base64EncodedImages.length, delay);
+		var keytimes = sag.keyTimesForImages(base64EncodedImages,delay,duration);
+		var svgData  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+width+'" height="'+height+'"><g>';
+		for(var i = 0; i < base64EncodedImages.length; i++){
+			svgData += sag.svgImageTag(keytimes,duration,i,base64EncodedImages[i],base64EncodedImages.length,width,height);
+		}
+		svgData 	+= '</g></svg>';
+		return svgData;
+	 },
+	 
+	 
+	 
+	 
+	/*
+	 *
+	 * BASE64 ENCODE IMAGE ARRAY
+	 *
+	 */
+	 getBase64EncodedImage:function(images){
+	 	var base64EncodedImages = [];
+	 	for(var i = 0; i < images.length; i++){
+	 		var imagefilecontent = fs.readFileSync(images[i]);
+	 		var ext = images[i].split('.');
+	 		ext = ext[(ext.length - 1)];
+	 		
+	 		var type = 'image/jpeg';
+	 		if(ext == 'png'){
+		 		type = 'image/png';
+	 		}
+	 		base64EncodedImages[i] = 'data:'+type+';base64,' + new Buffer(imagefilecontent).toString('base64');
+	 	}	 	
+	 	return base64EncodedImages;
+	 },
+	 
+	 
+	 
+	
+	/*
+	 *
+	 * GIVE OURSELVES A WRAPPER FOR MESSAGING, INCASE WE WANT TO STYLE THEM ACROSS THE BOARD
+	 *
+	 */
+	notify:{
+		log:function(message){
+			//we could add colors in here for standout
+			console.log('NOTIFY: ' + message);
+		},
+		warn:function(message){
+			//we could add colors in here for standout
+			console.log('WARN: ' + message);
+		},
+		error:function(message){
+			//we could add colors in here for standout
+			console.log('ERROR: ' + message);
+	        process.exit(1);
+		}
+	}
+}
+
+
+
+sag.create(program.imagepath, program.delay, program.out, program.width, program.height);
