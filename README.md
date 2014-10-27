@@ -9,6 +9,7 @@ The generated images work very similar to GIFs - but only better.
 - Are on the whole lower file size when using compressed JPGs
 - When using transparent PNGs as the frames - they are truly transparent with no matte like GIFs
 
+===
 
 #### Getting Started
 
