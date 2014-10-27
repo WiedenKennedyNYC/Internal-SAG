@@ -3,9 +3,9 @@
 /**
  * Module dependencies.
  */
-var program 	= require('commander');
-var fs 			= require('fs');
-var dir 		= require('node-dir');
+var program	= require('commander');
+var fs		= require('fs');
+var dir		= require('node-dir');
 
 
 
@@ -132,17 +132,15 @@ var sag = {
 	 *
 	 */ 
 	 svgImageTag:function(keytimes,duration,id,base64Data,frameCount,width,height){
-	 	var newLine = '\n';
-	 	//base64Data = '';
-		 var imagetag  = '<image width="'+width+'" height="'+height+'" xlink:href="'+base64Data+'">'+newLine;
-			 imagetag += '<animate '+newLine;
-		     imagetag += 	'id="frame'+(id+1)+'" '+newLine;
-		     imagetag += 	'attributeName="display" '+newLine;
-		     imagetag += 	'values="'+sag.valuesForImagesAndImage(id,frameCount)+'" '+newLine;
-		     imagetag += 	'keyTimes="'+keytimes+'" '+newLine;
-		     imagetag += 	'dur="'+duration+'s" '+newLine;
-		     imagetag += 	'begin="0s" '+newLine;
-		     imagetag += 	'repeatCount="indefinite" />'+newLine;
+		 var imagetag  = '<image width="'+width+'" height="'+height+'" xlink:href="'+base64Data+'">';
+			 imagetag += '<animate ';
+		     imagetag += 	'id="frame'+(id+1)+'" ';
+		     imagetag += 	'attributeName="display" ';
+		     imagetag += 	'values="'+sag.valuesForImagesAndImage(id,frameCount)+'" ';
+		     imagetag += 	'keyTimes="'+keytimes+'" ';
+		     imagetag += 	'dur="'+duration+'s" ';
+		     imagetag += 	'begin="0s" ';
+		     imagetag += 	'repeatCount="indefinite" />';
 			 imagetag += '</image>';
 		return imagetag;
 	 },
@@ -224,7 +222,7 @@ var sag = {
 		error:function(message){
 			//we could add colors in here for standout
 			console.log('ERROR: ' + message);
-	        process.exit(1);
+			process.exit(1);
 		}
 	}
 }
