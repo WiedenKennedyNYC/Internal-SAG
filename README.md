@@ -40,7 +40,11 @@ Testing of this CLI beyond generating just a couple of images is yet to be perfo
 
 Again, need to test this. I've seen the output file running nicely in Chrome 38, Firefox 21, Safari 8, and Safari on iOS8, but beyond this - I haven't looked as yet - but would expect to be similar to:http://caniuse.com/#feat=svg 
 
-IE doesn't support SMIL - so you would likely need to use a polyfill for SMIL (such as http://leunen.me/fakesmile/), or be happy with the image being a static representation on the last frame.
+
+##### IE Support
+IE doesn't support SMIL - so the builder includes a IE polyfill for SMIL (the script for this can be found in /libs/smil.user.js - and is from: http://leunen.me/fakesmile/). The path to this when generating your SVGs should be relative to the SVG itself. It's location can be changed using the -m option, and passing in a path - or IE support can be dropped with `-m false` which then simply displays the static final frame in IE.
+
+If supporting animation in IE - in addition to including the polyfill in the SVG itself - a client library will be required in your page (client/src/sag.ieshim.js). An example which has IE support can be found at: http://experiments.wkcreativetech.com/sag/iesupport.html
 
 ===
 
