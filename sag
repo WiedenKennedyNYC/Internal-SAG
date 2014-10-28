@@ -17,7 +17,8 @@ var defaults 	= {
 	delay:0.3,
 	out:'./sag.svg',
 	width:1152,
-	height:648
+	height:648,
+	ie_support:'/libs/polyfills/smil.user.js'
 }
 
 
@@ -32,6 +33,7 @@ program
   .option('-o, --out [type]', 'Add a specific file path ['+defaults.out+']', defaults.out)
   .option('-w, --width [type]', 'Add a specific image width ['+defaults.width+']', defaults.width)
   .option('-h, --height [type]', 'Add a specific image height ['+defaults.height+']', defaults.height)
+  .option('-m, --iesupport [type]', 'Add IE support and path to shim ['+defaults.ie_support+']', defaults.ie_support)
   .parse(process.argv);
 
 console.log('Creating new image with:');
@@ -40,6 +42,7 @@ console.log('Delay		:: %s', program.delay);
 console.log('Out		:: %s', program.out);
 console.log('Width		:: %s', program.width);
 console.log('Height		:: %s', program.height);
+console.log('IE Support	:: %s', program.iesupport);
 
 
 
@@ -54,14 +57,18 @@ var sag = {
 	 * HANDLE CREATING THE IMAGE THROUGH HELPERS
 	 *
 	 */
-	 create:function(imagepath, delay, out, width, height){
+	 create:function(imagepath, delay, out, width, height, ie_support){
+	 	if(ie_support == 'false'){
+	 		program.iesupport = false;
+	 		ie_support = false;
+	 	}
 		sag.getImages(imagepath, function(images){
 			if(!images.length){
 				sag.notify.error('No images in ' + program.imagepath);
 			}
 			
 			var base64EncodedImages = sag.getBase64EncodedImage(images);
-			var svgContent = sag.base64ImageArrayToAnimatedSVG(base64EncodedImages, delay, width, height);
+			var svgContent = sag.base64ImageArrayToAnimatedSVG(base64EncodedImages, delay, width, height, ie_support);
 			fs.writeFile(out, svgContent, function (err) {
 				if (err){
 			  		return sag.notify.error(err);
@@ -167,10 +174,14 @@ var sag = {
 	 * IMAGE ARRAY TO ANIMATED SVG
 	 *
 	 */
-	 base64ImageArrayToAnimatedSVG:function(base64EncodedImages,delay,width,height){
+	 base64ImageArrayToAnimatedSVG:function(base64EncodedImages,delay,width,height,ieSupport){
 		var duration = sag.getAnimatedSVGDuration(base64EncodedImages.length, delay);
 		var keytimes = sag.keyTimesForImages(base64EncodedImages,delay,duration);
-		var svgData  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+width+'" height="'+height+'"><g>';
+		var svgData  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+width+'" height="'+height+'">';
+		if(ieSupport){
+			svgData += '<script type="text/ecmascript" xlink:href="smil.user.js"/>';
+		}
+		svgData		+= '<g>';
 		for(var i = 0; i < base64EncodedImages.length; i++){
 			svgData += sag.svgImageTag(keytimes,duration,i,base64EncodedImages[i],base64EncodedImages.length,width,height);
 		}
@@ -229,4 +240,4 @@ var sag = {
 
 
 
-sag.create(program.imagepath, program.delay, program.out, program.width, program.height);
+sag.create(program.imagepath, program.delay, program.out, program.width, program.height, program.iesupport);
