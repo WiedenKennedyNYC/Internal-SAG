@@ -179,7 +179,7 @@ var sag = {
 		var keytimes = sag.keyTimesForImages(base64EncodedImages,delay,duration);
 		var svgData  = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+width+'" height="'+height+'">';
 		if(ieSupport){
-			svgData += '<script type="text/ecmascript" xlink:href="smil.user.js"/>';
+			svgData += '<script type="text/ecmascript" xlink:href="'+ieSupport+'"/>';
 		}
 		svgData		+= '<g>';
 		for(var i = 0; i < base64EncodedImages.length; i++){
