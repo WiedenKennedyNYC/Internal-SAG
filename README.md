@@ -40,6 +40,8 @@ Testing of this CLI beyond generating just a couple of images is yet to be perfo
 
 Again, need to test this. I've seen the output file running nicely in Chrome 38, Firefox 21, Safari 8, and Safari on iOS8, but beyond this - I haven't looked as yet - but would expect to be similar to:http://caniuse.com/#feat=svg 
 
+IE doesn't support SMIL - so you would likely need to use a polyfill for SMIL (such as http://leunen.me/fakesmile/), or be happy with the image being a static representation on the last frame.
+
 ===
 
 #### Why would I care when this hasn't been tested?
@@ -49,3 +51,12 @@ See above - and the truly transparent disco below (try changing the background i
 ![Image of disco]
 (http://experiments.wkcreativetech.com/imageformattest/sagtransb.svg)
 
+===
+
+#### Roadmap
+
+• Get full browser support matrix together
+
+• Get test coverage for CLI
+
+• If browser support is significant - build Photoshop extension, allowing for export directly from photoshop having used their animation tools
